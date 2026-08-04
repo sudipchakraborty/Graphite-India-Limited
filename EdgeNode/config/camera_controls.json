@@ -1,0 +1,15 @@
+{
+  "exposure": 55,
+  "gain": 83,
+  "brightness": 32,
+  "contrast": 29,
+  "saturation": 60,
+  "gamma": 61,
+  "temperature": 78,
+  "tint": 52,
+  "averaging_window": 20,
+  "auto_exposure": false,
+  "auto_white_balance": false,
+  "auto_focus": false,
+  "reference_image_path": "C:\\Users\\sudip\\Downloads\\Real print Image.png"
+}
