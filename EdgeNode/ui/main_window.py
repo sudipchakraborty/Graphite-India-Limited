@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         self.control_panel.set_rtsp_camera(
             self.camera_settings.rtsp_ip,
             self.camera_settings.rtsp_url,
+            self.camera_settings.camera_type,
         )
         self.inspection_panel = InspectionPanel()
 
@@ -458,8 +459,14 @@ class MainWindow(QMainWindow):
     # ---------------------------------------------------------
 
     def save_rtsp_ip(self, ip_address):
+        camera_type = (
+            "rpi"
+            if self.control_panel.camera_combo.currentIndex() == 1
+            else "ezviz"
+        )
+
         try:
-            self.camera_settings.save(ip_address)
+            self.camera_settings.save(ip_address, camera_type)
         except (KeyError, TypeError, ValueError) as error:
             QMessageBox.warning(
                 self,
@@ -471,6 +478,7 @@ class MainWindow(QMainWindow):
         self.control_panel.set_rtsp_camera(
             self.camera_settings.rtsp_ip,
             self.camera_settings.rtsp_url,
+            self.camera_settings.camera_type,
         )
         self.statusBar().showMessage(
             "Camera IP saved. Click Connect."

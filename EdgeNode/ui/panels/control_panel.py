@@ -58,6 +58,8 @@ class ControlPanel(BasePanel):
 
         super().__init__("AI Camera Settings")
         self._rtsp_url = rtsp_url
+        self._ezviz_rtsp_url = rtsp_url
+        self._rpi_rtsp_url = "rtsp://192.168.1.97:8554/gibnew"
 
         self._build_ui()
 
@@ -78,8 +80,12 @@ class ControlPanel(BasePanel):
         self.camera_combo = QComboBox()
 
         self.camera_combo.addItem(
-            "RTSP Camera",
-            self._rtsp_url,
+            "EZVIZ RTSP Camera",
+            self._ezviz_rtsp_url,
+        )
+        self.camera_combo.addItem(
+            "Raspberry Pi 5 RTSP Camera",
+            self._rpi_rtsp_url,
         )
 
         camera_layout.addWidget(self.camera_combo)
@@ -187,6 +193,10 @@ class ControlPanel(BasePanel):
             )
         )
 
+        self.camera_combo.currentIndexChanged.connect(
+            self._on_camera_selection_changed
+        )
+
         # --------------------------------------
         # Sliders
         # --------------------------------------
@@ -247,21 +257,37 @@ class ControlPanel(BasePanel):
 
     def _on_connect_clicked(self):
 
-        camera_index = self.camera_combo.currentData()
+        camera_url = self.camera_combo.currentData()
 
-        if camera_index is None:
-            camera_index = self.camera_combo.currentIndex()
+        if camera_url is None:
+            camera_url = self.camera_combo.currentIndex()
 
-        self.connect_requested.emit(camera_index)
+        self.connect_requested.emit(camera_url)
+
+    def _on_camera_selection_changed(self, _index):
+        current_url = self.camera_combo.currentData()
+        if not current_url:
+            return
+        self.rtsp_ip_edit.setText(urlsplit(current_url).hostname or "")
 
     # --------------------------------------------------
     # Public API
     # --------------------------------------------------
 
-    def set_rtsp_camera(self, ip_address, url):
+    def set_rtsp_camera(self, ip_address, url, camera_type="ezviz"):
         self.rtsp_ip_edit.setText(ip_address)
-        self.camera_combo.setItemData(0, url)
-        self.camera_combo.setItemText(
-            0,
-            f"RTSP Camera ({ip_address})",
-        )
+
+        if camera_type == "rpi":
+            self.camera_combo.setItemData(1, url)
+            self.camera_combo.setItemText(
+                1,
+                f"Raspberry Pi 5 RTSP Camera ({ip_address})",
+            )
+            self.camera_combo.setCurrentIndex(1)
+        else:
+            self.camera_combo.setItemData(0, url)
+            self.camera_combo.setItemText(
+                0,
+                f"EZVIZ RTSP Camera ({ip_address})",
+            )
+            self.camera_combo.setCurrentIndex(0)
